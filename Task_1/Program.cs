@@ -2,7 +2,6 @@
 using System.IO;
 using System.Text.Json;
 using System.Collections;
-using System.Diagnostics;
 
 namespace Task_1
 {
@@ -38,6 +37,7 @@ namespace Task_1
                 var duration = (endTime - time);
                 const string error = "settings.json are missing or corrupted";
                 SaveResultInJson(false, error, duration, null);
+                Environment.Exit(0);
                 return null;
             }
         }
@@ -50,20 +50,22 @@ namespace Task_1
                 Success = success, Error = error, Duration = duration.ToString(), Primes = primes
             };
             var serialized = JsonSerializer.Serialize(result);
-            //Console.WriteLine(serialized);
             File.WriteAllText(@"result.json", serialized);
         }
 
         private static void PrimeAlgorithm(Settings settings, DateTime time)
         {
-            var duration = DateTime.Now.Subtract(time);
-            if(settings == null)
-            {
-                return;
-            }
             var primes = new ArrayList();
-
-            if (settings != null)
+            try
+            {
+                if (settings.PrimesFrom <= 0 || settings.PrimesTo <= 0)
+                {
+                    throw new Exception();
+                }
+                if(settings == null)
+                {
+                    throw new Exception();
+                }
                 for (var number = settings.PrimesFrom; number <= settings.PrimesTo; number++)
                 {
                     var counter = 0;
@@ -78,9 +80,14 @@ namespace Task_1
                         primes.Add(number);
                 }
 
-            duration = DateTime.Now.Subtract(time);
-            SaveResultInJson(true, null, duration, primes);
-            //return primes;
+                var duration = DateTime.Now.Subtract(time);
+                SaveResultInJson(true, null, duration, primes);
+            }
+            catch
+            {
+                var duration = DateTime.Now.Subtract(time);
+                SaveResultInJson(true, null, duration,primes);
+            }
         }
     }
 }

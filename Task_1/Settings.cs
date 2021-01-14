@@ -2,7 +2,7 @@
 
 namespace Task_1
 {
-    class Settings
+    internal class Settings
     {
         [JsonPropertyName("primesFrom")]
         public int PrimesFrom { get; set; }

@@ -4,15 +4,15 @@ using System.Text.Json.Serialization;
 
 namespace Task_1
 {
-    class Result
+    internal class Result
     {
         [JsonPropertyName("success")]
-        public bool Success { get; set; }
+        public bool Success { get; init; }
         [JsonPropertyName("error")]
-        public string Error { get; set; }
+        public string Error { get; init; }
         [JsonPropertyName("duration")]
-        public string Duration { get; set; }
+        public string Duration { get; init; }
         [JsonPropertyName("primes")]
-        public ArrayList Primes { get; set; }
+        public ArrayList Primes { get; init; }
     }
 }
