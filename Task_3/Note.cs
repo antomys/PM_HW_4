@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Reflection;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace Task_3
 {
@@ -105,7 +102,9 @@ namespace Task_3
         private static void UpdateNoteJson(int id)
         {
             var deserialize = JsonConvert.DeserializeObject<List<Note>>(File.ReadAllText(_file));
-            deserialize.RemoveAt(id);
+            var toDelete = deserialize.FindIndex(x => x.Id.Equals(id));
+            
+            deserialize.RemoveAt(toDelete);
             if (deserialize.Count == 0)
             {
                 File.WriteAllText(_file,null);
@@ -125,7 +124,7 @@ namespace Task_3
                 return false;
             }
 
-            if (id < 0 || id > notes.Count-1) return false;
+            if (notes.All(x => x.Id != id)) return false;
             Console.WriteLine($"Are you sure want to delete this note:");
             ShowNote(GetNoteById(id));
             Console.Write("Please write Y or N to continue: ");
@@ -138,7 +137,7 @@ namespace Task_3
 
         private static Note NewNote(string text, int id)
         {
-            var date = DateTime.Now;
+            var date = DateTime.UtcNow;
             if (text.Length < 32) return new Note(id, text, text, date);
             var title = text.Substring(0, 32);
             return new Note(id, title, text, date);
@@ -164,7 +163,8 @@ namespace Task_3
             {
                 return null;
             }
-            if (id < 0 || id > notes.Count())
+            //if (id < 0 || id > notes.Count-1)
+            if (!notes.Any(x=>x.Id == id))
             {
                 Console.WriteLine("\nNot found such Note\n");
                 return null;

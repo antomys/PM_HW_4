@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
 
 namespace Task_3
 {
     internal static class Program
     {
-        private static List<Note> _NotesData;
         private static void Main()
         {
             Console.WriteLine("Notes, Volokhovych");
-            _NotesData = Note.GetNotes();
             Menu();
         }
 
