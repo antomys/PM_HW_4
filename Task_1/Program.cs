@@ -6,16 +6,16 @@ using System.Diagnostics;
 
 namespace Task_1
 {
-    class Program
+    internal static class Program
     {
-        static void Main()
+        private static void Main()
         {
             var time = DateTime.Now;
-            Settings settings = LoadDataFromJson(time);
-            var primes = PrimeAlgorithm(settings, time);
+            var settings = LoadDataFromJson(time);
+            PrimeAlgorithm(settings, time);
         }
 
-        public static Settings LoadDataFromJson(DateTime time)
+        private static Settings LoadDataFromJson(DateTime time)
         {
             try
             {
@@ -26,7 +26,7 @@ namespace Task_1
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
                 var deserializer = JsonSerializer.Deserialize<Settings>(jsonString, option);
-                if (deserializer.PrimesFrom == 0 || deserializer.PrimesTo == 0)
+                if (deserializer != null && (deserializer.PrimesFrom == 0 || deserializer.PrimesTo == 0))
                 {
                     throw new Exception();
                 }
@@ -35,51 +35,52 @@ namespace Task_1
             catch
             {
                 var endTime = DateTime.Now;
-                TimeSpan duration = (endTime - time);
-                var error = "settings.json are missing or corrupted";
+                var duration = (endTime - time);
+                const string error = "settings.json are missing or corrupted";
                 SaveResultInJson(false, error, duration, null);
                 return null;
             }
         }
 
-        public static void SaveResultInJson(bool success, string error, 
+        private static void SaveResultInJson(bool success, string error, 
             TimeSpan duration, ArrayList primes)
         {
-            Result result = new Result();
-            result.Success = success;
-            result.Error = error;
-            result.Duration = duration.ToString();
-            result.Primes = primes;
+            var result = new Result
+            {
+                Success = success, Error = error, Duration = duration.ToString(), Primes = primes
+            };
             var serialized = JsonSerializer.Serialize(result);
-            Console.WriteLine(serialized);
+            //Console.WriteLine(serialized);
             File.WriteAllText(@"result.json", serialized);
         }
-        public static ArrayList PrimeAlgorithm(Settings settings, DateTime time)
+
+        private static void PrimeAlgorithm(Settings settings, DateTime time)
         {
+            var duration = DateTime.Now.Subtract(time);
             if(settings == null)
             {
-                return null;
+                return;
             }
             var primes = new ArrayList();
-            int counter;
-            
-            for(var number = settings.PrimesFrom; number <= settings.PrimesTo; number++)
-            {
-                counter = 0;
-                for(var i = 2; i <= number / 2; i++)
+
+            if (settings != null)
+                for (var number = settings.PrimesFrom; number <= settings.PrimesTo; number++)
                 {
-                    if (number % i == 0)
+                    var counter = 0;
+                    for (var i = 2; i <= number / 2; i++)
                     {
+                        if (number % i != 0) continue;
                         counter++;
                         break;
                     }
+
+                    if (counter == 0 && number != 1)
+                        primes.Add(number);
                 }
-                if (counter == 0 && number != 1)
-                    primes.Add(number);
-            }
-            TimeSpan duration = DateTime.Now.Subtract(time);
+
+            duration = DateTime.Now.Subtract(time);
             SaveResultInJson(true, null, duration, primes);
-            return primes;
+            //return primes;
         }
     }
 }
