@@ -1,12 +1,18 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 namespace Task_3
 {
     public interface INote
     {
-        int Id { get; } //Identificator
-        string Title { get; } //Title of Note
-        string Text { get; } //Text of Note
-        DateTime CreatedOn { get; } //Creation Date
+
+        [JsonProperty("Id")]
+        int Id { get; }
+        [JsonProperty("Title")]
+        string Title { get; }
+        [JsonProperty("Text")]
+        string Text { get; }
+        [JsonProperty("CreatedOn")]
+        DateTime? CreatedOn { get; }
     }
 }
