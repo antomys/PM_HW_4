@@ -92,17 +92,16 @@ namespace Task_3
 
         private static void SearchNote()
         {
-            var note = new Note();
             var getNotes = Note.GetNotes();
             Console.Write("Please input filter-string: ");
             var input = Console.ReadLine();
-            if (String.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input))
             {
                 if(Note.PrintNotes(getNotes))
                     Menu();
             }
 
-            var filtered = note.Filter(getNotes, input);
+            var filtered = Note.Filter(getNotes, input);
             if (filtered != null)
             {
                 Console.WriteLine("\nFiltered:");

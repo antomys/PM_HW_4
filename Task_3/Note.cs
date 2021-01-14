@@ -8,9 +8,9 @@ namespace Task_3
 {
     internal class Note : INote
     {
-        private const string _file = "Notes.json";
+        private const string File = "Notes.json";
 
-        public Note(int id, string title, string text, DateTime createdOn)
+        private Note(int id, string title, string text, DateTime createdOn)
         {
             Id = id;
             Title = title;
@@ -40,36 +40,28 @@ namespace Task_3
 
         }
 
-        public List<Note> Filter(List<Note> notes, string filter)
+        public static List<Note> Filter(List<Note> notes, string filter)
         {
             if (IsEmpty(notes))
                 return null;
-            var filteredNotes = new List<Note>();
-            foreach (var note in notes)
-            {
-                if (note.Id.ToString().Contains(filter) || note.Title.Contains(filter) ||
-                    note.Text.Contains(filter) || note.CreatedOn.ToString().Contains(filter))
-                {
-                    filteredNotes.Add(note);
-                }
-            }
+            var filteredNotes = notes.Where(note => note.Id.ToString().Contains(filter) || note.Title.Contains(filter) || note.Text.Contains(filter) || note.CreatedOn.ToString().Contains(filter)).ToList();
             return filteredNotes.Count < 1 ? null : filteredNotes;
         }
 
-        private static bool IsExist()
+        private static void IsExist()
         {
-            if (File.Exists("Notes.json")) return true;
+            if (System.IO.File.Exists("Notes.json")) return;
             Console.WriteLine("File Notes.json not found. Creating...");
-            using var fs = File.Create(_file);
+            using var fs = System.IO.File.Create(File);
             fs.Close();
-            return true;
         }
         
         public static bool PrintNotes(IEnumerable<Note> notesList)
         {
-            if (IsEmpty(notesList?.ToList()))
+            var enumerable = notesList.ToList();
+            if (IsEmpty(enumerable?.ToList()))
                 return true;
-            foreach (var note in notesList)
+            foreach (var note in enumerable)
             {
                 Console.WriteLine(note.ToString());
             }
@@ -79,9 +71,9 @@ namespace Task_3
         public static void AddNote(string text)
         {
             text = text.Trim();
-            string result;
+            string result = null;
             IsExist();
-            if (File.ReadAllText(_file).Length == 0)
+            if (System.IO.File.ReadAllText(File).Length == 0)
             {
                 result = "[";
                 var note = NewNote(text, 0);
@@ -90,29 +82,38 @@ namespace Task_3
             }
             else
             {
-                var deserialize = JsonConvert.DeserializeObject<List<Note>>(File.ReadAllText(_file));
-                var newId = deserialize.Max(x => x.Id)+1;
-                var note = NewNote(text, newId);
-                deserialize.Add(note);
-                result = JsonConvert.SerializeObject(deserialize,Formatting.Indented);
+                try
+                {
+                    var deserialize = JsonConvert.DeserializeObject<List<Note>>(System.IO.File.ReadAllText(File));
+                    var newId = deserialize.Max(x => x.Id)+1;
+                    var note = NewNote(text, newId);
+                    deserialize.Add(note);
+                    result = JsonConvert.SerializeObject(deserialize,Formatting.Indented);
+                }
+                catch
+                {
+                    Console.WriteLine($"Note.json file is corrupted! Please check it at {Path.GetFullPath(File)}");
+                    Environment.Exit(-1);
+                }
+                
             }
-            File.WriteAllText(_file,result);
+            System.IO.File.WriteAllText(File,result);
         }
 
         private static void UpdateNoteJson(int id)
         {
-            var deserialize = JsonConvert.DeserializeObject<List<Note>>(File.ReadAllText(_file));
+            var deserialize = JsonConvert.DeserializeObject<List<Note>>(System.IO.File.ReadAllText(File));
             var toDelete = deserialize.FindIndex(x => x.Id.Equals(id));
             
             deserialize.RemoveAt(toDelete);
             if (deserialize.Count == 0)
             {
-                File.WriteAllText(_file,null);
+                System.IO.File.WriteAllText(File,null);
             }
             else
             {
                 var json = JsonConvert.SerializeObject(deserialize,Formatting.Indented);
-                File.WriteAllText(_file,json);
+                System.IO.File.WriteAllText(File,json);
             }
         }
 
@@ -146,7 +147,7 @@ namespace Task_3
         public static List<Note> GetNotes()
         {
             IsExist();
-            var deserialize = JsonConvert.DeserializeObject<List<Note>>(File.ReadAllText(_file));
+            var deserialize = JsonConvert.DeserializeObject<List<Note>>(System.IO.File.ReadAllText(File));
             var notes = deserialize?.ToList();
             return notes;
         }
